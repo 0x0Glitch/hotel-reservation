@@ -15,6 +15,11 @@ const (
 	miniPasswordLen = 7
 )
 
+type UpdateUserParams struct{
+	FirstName   string `json:"firstName"`
+	LastName 	string `json:"lastName"`
+}
+
 type CreateUserParams struct{
 	FirstName   string `json:"firstName"`
 	LastName 	string `json:"lastName"`
@@ -24,13 +29,13 @@ type CreateUserParams struct{
 }
 
 type User struct {
-	ID 				  primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	FirstName   	  string `bson:"firstName " json:"firstName"`
-	LastName 		  string `bson:"lastName " json:"lastName"`
-	Email 			  string `bson:"email" json:"email"`
-	EncryptedPassword string `bson:"EncryptedPassword" json:"-"`
-
+    ID                primitive.ObjectID `bson:"_id" json:"id,omitempty"`
+    FirstName         string             `bson:"firstName" json:"firstName"`
+    LastName          string             `bson:"lastName"  json:"lastName"`
+    Email             string             `bson:"email"     json:"email"`
+    EncryptedPassword string             `bson:"EncryptedPassword" json:"-"`
 }
+
 
 func NewUserFromParams(params CreateUserParams) (*User,error){
 	encpw, err := bcrypt.GenerateFromPassword([]byte(params.Password), bcryptCost)
@@ -43,20 +48,20 @@ func NewUserFromParams(params CreateUserParams) (*User,error){
 		EncryptedPassword: string(encpw),
 	},nil
 }
-func (params CreateUserParams) Validate() []string{
-	errors := []string{}
+func (params CreateUserParams) Validate() map[string]string{
+	errors := map[string]string{}
 	if len(params.FirstName)<miniFirstNameLen{
-		errors = append(errors,fmt.Sprintf("firstName length should be at least %d characters",miniFirstNameLen))
+		errors["firstName"] = fmt.Sprintf("firstName length should be at least %d characters",miniFirstNameLen)
 	}
 	if len(params.LastName)<miniFirstNameLen{
-		 errors = append(errors,fmt.Sprintf("LastNamelength should be at least %d characters",miniLastNameLen))
+		 errors["lastName"] = fmt.Sprintf("LastNamelength should be at least %d characters",miniLastNameLen)
 	}
 
 	if len(params.Password)<miniPasswordLen{
-		errors=append(errors,fmt.Sprintf("minimum password length should be at least %d characters",miniPasswordLen))
+		errors["password"]=fmt.Sprintf("minimum password length should be at least %d characters",miniPasswordLen)
 	}
 	if !isEmailValid(params.Email){
-		errors = append(errors,fmt.Sprintf("Email is invalid"))
+		errors["email"] = fmt.Sprintf("Email is invalid")
 	}
 	return errors
 }
