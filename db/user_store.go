@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/0x0Glitch/hotel-reservation/types"
 	"go.mongodb.org/mongo-driver/bson"
@@ -10,11 +11,15 @@ import (
 )
 const usesrColl = "users"
 type UserStore interface{
+
 	GetUserById(context.Context,string) (*types.User,error)
 	GetUsers(context.Context) ([]*types.User,error)
 	InsertUser(context.Context,*types.User) (*types.User,error)
 	DeleteUser(context.Context, string) error
 	UpdateUser(ctx context.Context,filter bson.M,update bson.M) error
+	Drop(context.Context) error
+
+
 }
 
 type MongoUserStore struct{
@@ -23,18 +28,16 @@ type MongoUserStore struct{
 	coll *mongo.Collection
 }
 
-
-
-
-func NewMongoUserStore(client *mongo.Client) *MongoUserStore{
+func NewMongoUserStore(client *mongo.Client,dbname string) *MongoUserStore{
 	
 	
 	return &MongoUserStore{
 		client: client,
-		coll :client.Database(DBNAME).Collection(usesrColl),
+		coll :client.Database(dbname).Collection(usesrColl),
 	}
 
 }
+
 func (s *MongoUserStore) GetUserById(ctx context.Context,id string) (*types.User,error){
 	var user types.User
 	oid ,err := primitive.ObjectIDFromHex(id)
@@ -92,6 +95,11 @@ func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M,update bs
 		return err
 	}
 	return nil
+}
+
+func (s *MongoUserStore) Drop(ctx context.Context) error{
+	fmt.Println("----dropping")
+	return s.coll.Drop(ctx)
 }
 
 
