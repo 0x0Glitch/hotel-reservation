@@ -7,6 +7,7 @@ import (
 
 	"github.com/0x0Glitch/hotel-reservation/api"
 	"github.com/0x0Glitch/hotel-reservation/db"
+	"github.com/0x0Glitch/hotel-reservation/middleware"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -44,11 +45,21 @@ func main(){
 	}
 	userHandler := api.NewUserHandler(userStore)
 	hotelHandler := api.NewHotelHandler(store)
+	authHandler := api.NewAuthHandler(userStore)
 	
 	app := fiber.New(config)
+	auth := app.Group("/api")
 	
+	
+	
+	apiv1 := app.Group("/api/v1",middleware.JWTAuthentication)	
+
+
+	//Auth
+	auth.Post("/auth",authHandler.HandleAuthentication)
+
+
 	//user handlers
-	apiv1 := app.Group("/api/v1")	
 	apiv1.Post("/user",userHandler.HandlePostUser)
 	apiv1.Delete("/user/:id",userHandler.HandleDeleteUser)
 	apiv1.Get("/user", userHandler.HandleGetUsers)
