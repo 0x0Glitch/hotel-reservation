@@ -11,15 +11,12 @@ import (
 )
 const usesrColl = "users"
 type UserStore interface{
-
 	GetUserById(context.Context,string) (*types.User,error)
 	GetUsers(context.Context) ([]*types.User,error)
 	InsertUser(context.Context,*types.User) (*types.User,error)
 	DeleteUser(context.Context, string) error
 	UpdateUser(ctx context.Context,filter bson.M,update bson.M) error
 	Drop(context.Context) error
-
-
 }
 
 type MongoUserStore struct{
@@ -28,12 +25,12 @@ type MongoUserStore struct{
 	coll *mongo.Collection
 }
 
-func NewMongoUserStore(client *mongo.Client,dbname string) *MongoUserStore{
+func NewMongoUserStore(client *mongo.Client) *MongoUserStore{
 	
 	
 	return &MongoUserStore{
 		client: client,
-		coll :client.Database(dbname).Collection(usesrColl),
+		coll :client.Database(DBNAME).Collection(usesrColl),
 	}
 
 }

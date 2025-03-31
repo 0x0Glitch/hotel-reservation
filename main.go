@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const userColl = "users"
+// const userColl = "users"
 // Create a new fiber instance with custom config
 var config = fiber.Config{
     // Override default error handler
@@ -33,10 +33,17 @@ func main(){
 		log.Fatal(err)
 	}
 	
-	userHandler := api.NewUserHandler(db.NewMongoUserStore(client,db.DBNAME))
+	
 	hotelStore := db.NewMongoHotelStore(client)
 	roomStore := db.NewMongoRoomStore(client,hotelStore)
-	hotelHandler := api.NewHotelHandler(hotelStore,roomStore)
+	userStore := db.NewMongoUserStore(client)
+	store := &db.Store{
+		Hotel: hotelStore,
+		Room: roomStore,
+		User: userStore,
+	}
+	userHandler := api.NewUserHandler(userStore)
+	hotelHandler := api.NewHotelHandler(store)
 	
 	app := fiber.New(config)
 	
@@ -49,7 +56,9 @@ func main(){
 	apiv1.Put("user/:id",userHandler.HandlePutUser)
 	
 	//hotel handlers
-	apiv1.Get("hotel",hotelHandler.HandleGetHotels)
+	apiv1.Get("/hotel",hotelHandler.HandleGetHotels)
+	apiv1.Get("/hotel/:id",hotelHandler.HandleGetHotel)
+	apiv1.Get("/hotel/:id/rooms",hotelHandler.HandleGetRooms)
 
 	app.Listen(*listenAddr)
 
