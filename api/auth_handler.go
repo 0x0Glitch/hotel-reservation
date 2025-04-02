@@ -3,11 +3,14 @@ package api
 import (
 	"errors"
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/0x0Glitch/hotel-reservation/db"
+	"github.com/0x0Glitch/hotel-reservation/types"
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthHandler struct{
@@ -21,8 +24,15 @@ func NewAuthHandler(userStore db.UserStore) *AuthHandler{
 }
 
 type AuthParams struct{
-	Email string `json:"email"`
-	Password string `json:"password"`
+	Email    string    `json:"email"`
+	Password string    `json:"password"`
+}
+
+
+type AuthResponse struct{
+	User *types.User `json:"User"`
+	Token string	 `json:"token"`
+
 }
 func (h *AuthHandler) HandleAuthentication(c *fiber.Ctx) error{
 	var params AuthParams
@@ -33,15 +43,38 @@ func (h *AuthHandler) HandleAuthentication(c *fiber.Ctx) error{
 	if err != nil{
 		if errors.Is(err,mongo.ErrNoDocuments){
 			return fmt.Errorf("invalid credentials")
-
 		}
 		return err
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword),[]byte(params.Password))
-	if err != nil{
-		return fmt.Errorf("invalid credentials")
+	if !types.IsValidPassword(user.EncryptedPassword,params.Password){
+		return fmt.Errorf("Invalid credentials")
 	}
-	fmt.Println(user)
+	token := createTokenFromUser(user)
+	resp := AuthResponse{
+		User:user,
+		Token: token,
+	}
+	return c.JSON(resp)
+	
 
 	return nil
+}
+func createTokenFromUser(user *types.User) string{
+	now := time.Now()
+	expires := now.Add(time.Hour*4).Unix()
+	claims := jwt.MapClaims{
+		"id":        user.ID,
+		"email":     user.Email,
+		"expires": expires,
+
+	}
+	
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256,claims)
+	secret := os.Getenv("JWT_SECRET")
+	tokenStr,err := token.SignedString([]byte(secret))
+	fmt.Println(secret)
+if err != nil{
+	fmt.Println("Failed to sign token with secret",err)
+}
+return tokenStr
 }

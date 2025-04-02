@@ -51,7 +51,6 @@ func main(){
 	auth := app.Group("/api")
 	
 	
-	
 	apiv1 := app.Group("/api/v1",middleware.JWTAuthentication)	
 
 
@@ -72,7 +71,6 @@ func main(){
 	apiv1.Get("/hotel/:id/rooms",hotelHandler.HandleGetRooms)
 
 	app.Listen(*listenAddr)
-
 
 }
 

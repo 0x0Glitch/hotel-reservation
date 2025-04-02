@@ -29,7 +29,7 @@ type CreateUserParams struct{
 }
 
 type User struct {
-    ID                primitive.ObjectID `bson:"_id" json:"id,omitempty"`
+    ID                primitive.ObjectID `bson:"_id" json:"id"`
     FirstName         string             `bson:"firstName" json:"firstName"`
     LastName          string             `bson:"lastName"  json:"lastName"`
     Email             string             `bson:"email"     json:"email"`
@@ -46,6 +46,7 @@ func NewUserFromParams(params CreateUserParams) (*User,error){
 		LastName: params.LastName,
 		Email: params.Email,
 		EncryptedPassword: string(encpw),
+		ID:  primitive.NewObjectID(),
 	},nil
 }
 func (params CreateUserParams) Validate() map[string]string{
@@ -69,3 +70,6 @@ func isEmailValid(e string) bool{
 		var emailRegex = regexp.MustCompile(`(?i)^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$`)
 		return emailRegex.MatchString(e)
 	}
+func IsValidPassword(encpw,pw string)bool{
+		return bcrypt.CompareHashAndPassword([]byte(encpw),[]byte(pw))==nil
+}

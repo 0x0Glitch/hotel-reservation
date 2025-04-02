@@ -15,7 +15,7 @@ const(
 
 
 type Hotel struct{
-	ID 		 primitive.ObjectID     `bson:"_id,omitempty" json:"id,omitempty"`
+	ID 		 primitive.ObjectID     `bson:"_id,omitempty" json:"id"`
 	Name 	 string 		        `bson:"name" json:"name"`
 	Location string 	            `bson:"location" json:"location"`
 	Rooms 	 []primitive.ObjectID	`bson:"rooms" json:"rooms"`
