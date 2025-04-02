@@ -9,4 +9,3 @@ type Store struct{
 	Room RoomStore
 }
 
-
