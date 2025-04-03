@@ -42,12 +42,14 @@ func main(){
 	hotelStore := db.NewMongoHotelStore(client)
 	roomStore := db.NewMongoRoomStore(client,hotelStore)
 	userStore := db.NewMongoUserStore(client)
+	bookingStore := db.NewMongoBookingStore(client)
 	
 	// Create a central store with all sub-stores
 	store := &db.Store{
 		Hotel: hotelStore,
 		Room: roomStore,
 		User: userStore,
+		Booking:bookingStore,
 	}
 	
 	// Initialize API handlers
@@ -84,6 +86,7 @@ func main(){
 	apiv1.Get("/hotel",hotelHandler.HandleGetHotels)         // Get all hotels
 	apiv1.Get("/hotel/:id",hotelHandler.HandleGetHotel)      // Get a specific hotel
 	apiv1.Get("/hotel/:id/rooms",hotelHandler.HandleGetRooms)
+	apiv1.Get("/room",roomHandler.HandleGetRooms)
 	 // Get rooms for a hotel
 
 	apiv1.Post("/room/:id/book",roomHandler.HandleBookRoom)
