@@ -97,7 +97,7 @@ func seedUser(fname, lname, email string) {
 		Email: email,
 		FirstName: fname,
 		LastName: lname,
-		Password: "supersecurepassword",  // Note: In a real app, use strong unique passwords
+		Password: "upersecrepassword",  // Note: In a real app, use strong unique passwords
 	})
 	if err != nil {
 		log.Fatal(err)

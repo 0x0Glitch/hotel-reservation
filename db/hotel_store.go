@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-
 	"github.com/0x0Glitch/hotel-reservation/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

@@ -35,7 +35,7 @@ func main(){
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
 	if err != nil{
 		log.Fatal(err)
-	}
+	} 
 	
 	// Initialize database stores
 	// These provide access to different collections in MongoDB
@@ -55,6 +55,7 @@ func main(){
 	userHandler := api.NewUserHandler(userStore)
 	hotelHandler := api.NewHotelHandler(store)
 	authHandler := api.NewAuthHandler(userStore)
+	roomHandler := api.NewRoomHandler(store)
 	
 	// Create a new Fiber app with our custom config
 	app := fiber.New(config)
@@ -64,7 +65,7 @@ func main(){
 	auth := app.Group("/api")
 	
 	// apiv1 group requires JWT authentication for all routes
-	apiv1 := app.Group("/api/v1",middleware.JWTAuthentication)	
+	apiv1 := app.Group("/api/v1",middleware.JWTAuthentication(userStore))	
 
 	// Authentication routes
 	// These don't require authentication to access
@@ -82,8 +83,10 @@ func main(){
 	// All of these require authentication
 	apiv1.Get("/hotel",hotelHandler.HandleGetHotels)         // Get all hotels
 	apiv1.Get("/hotel/:id",hotelHandler.HandleGetHotel)      // Get a specific hotel
-	apiv1.Get("/hotel/:id/rooms",hotelHandler.HandleGetRooms) // Get rooms for a hotel
+	apiv1.Get("/hotel/:id/rooms",hotelHandler.HandleGetRooms)
+	 // Get rooms for a hotel
 
+	apiv1.Post("/room/:id/book",roomHandler.HandleBookRoom)
 	// Start the server
 	app.Listen(*listenAddr)
 }

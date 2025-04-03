@@ -265,7 +265,7 @@ func TestMongoUserStore_UpdateUser(t *testing.T) {
 
 	// Update user's first name - Note: $set is required for MongoDB updates
 	filter := bson.M{"_id": insertedUser.ID}
-	update := bson.M{"$set": bson.M{"firstName": "JohnUpdated"}}
+	update := bson.M{"firstName": "JohnUpdated"}
 
 	err = tdb.userStore.UpdateUser(context.TODO(), filter, update)
 	if err != nil {

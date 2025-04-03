@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/0x0Glitch/hotel-reservation/db"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -12,7 +13,8 @@ import (
 // JWTAuthentication is a middleware function that checks if the request has a valid JWT token
 // This ensures that only authenticated users can access protected routes
 // It extracts the token from the X-Api-Token header, validates it, and checks if it's expired
-func JWTAuthentication(c *fiber.Ctx) error{
+func JWTAuthentication(userStore db.UserStore) fiber.Handler{
+    return func(c *fiber.Ctx) error {
 	// Get the token from the request header
 	token := c.Get("X-Api-Token")
 	
@@ -31,10 +33,18 @@ func JWTAuthentication(c *fiber.Ctx) error{
 	if time.Now().Unix() > expires {
 		return fmt.Errorf("token expired")
 	}
-	
+	userID := claims["id"].(string)
+	user,err := userStore.GetUserById(c.Context(),userID)
+	if err != nil{
+		return fmt.Errorf("Unauthorized")
+	}
+	// set the current authenticated user to the context.
+	c.Context().SetUserValue("user",user)
+
 	// If token is valid and not expired, continue to the next middleware or handler
-	c.Next()
-	return nil
+	return c.Next()
+	
+}
 }
 
 // validateToken checks if a JWT token is valid and returns its claims
