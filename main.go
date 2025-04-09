@@ -58,6 +58,7 @@ func main(){
 	hotelHandler := api.NewHotelHandler(store)
 	authHandler := api.NewAuthHandler(userStore)
 	roomHandler := api.NewRoomHandler(store)
+	bookingHandler := api.NewBookingHandler(store)
 	
 	// Create a new Fiber app with our custom config
 	app := fiber.New(config)
@@ -65,9 +66,12 @@ func main(){
 	// Create API routes
 	// auth group is for non-authenticated endpoints
 	auth := app.Group("/api")
+
 	
 	// apiv1 group requires JWT authentication for all routes
 	apiv1 := app.Group("/api/v1",middleware.JWTAuthentication(userStore))	
+	admin := apiv1.Group("/admin",middleware.AdminAuth)
+
 
 	// Authentication routes
 	// These don't require authentication to access
@@ -86,10 +90,13 @@ func main(){
 	apiv1.Get("/hotel",hotelHandler.HandleGetHotels)         // Get all hotels
 	apiv1.Get("/hotel/:id",hotelHandler.HandleGetHotel)      // Get a specific hotel
 	apiv1.Get("/hotel/:id/rooms",hotelHandler.HandleGetRooms)
-	apiv1.Get("/room",roomHandler.HandleGetRooms)
+	
 	 // Get rooms for a hotel
-
+	apiv1.Get("/room",roomHandler.HandleGetRooms)
 	apiv1.Post("/room/:id/book",roomHandler.HandleBookRoom)
+
+	admin.Get("/booking", bookingHandler.HandleGetBookings)
+	apiv1.Get("/booking/:id",bookingHandler.HandleGetBooking)
 	// Start the server
 	app.Listen(*listenAddr)
 }

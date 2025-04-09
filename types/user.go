@@ -40,7 +40,8 @@ type User struct {
     FirstName         string             `bson:"firstName" json:"firstName"`         // User's first name
     LastName          string             `bson:"lastName"  json:"lastName"`          // User's last name
     Email             string             `bson:"email"     json:"email"`             // User's email address
-    EncryptedPassword string             `bson:"EncryptedPassword" json:"-"`         // Password hash (not sent in JSON responses)
+    EncryptedPassword string     `bson:"EncryptedPassword" json:"-"`
+ 	IsAdmin 		  bool			`json:"admin"`      // Password hash (not sent in JSON responses)
 }
 
 // NewUserFromParams creates a new User object from the provided parameters
@@ -82,7 +83,7 @@ func (params CreateUserParams) Validate() map[string]string{
 	
 	// Check email format
 	if !IsEmailValid(params.Email){
-		errors["email"] = fmt.Sprintf("Email is invalid")
+		errors["email"] = fmt.Sprintf("Email %s is invalid",params.Email)
 	}
 	return errors
 }

@@ -31,5 +31,5 @@ type Room struct{
 	Seaside	  bool 				     `bson:"seaside" json:"seaside"`           // Whether the room has a sea view
 	Size 	  string			     `bson: "size" json:"size"`               // Size of the room (e.g., "large", "small")
 	Price 	  float64			     `bson:"price",json:"price"`              // Cost per night in the room
-	HotelID   primitive.ObjectID     `bson:"hotelID" json:"hotelID"`           // ID of the hotel this room belongs to
+	HotelID   primitive.ObjectID     `bson:"hotelID" json:"hotelID"`  
 }
