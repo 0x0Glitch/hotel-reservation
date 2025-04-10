@@ -63,8 +63,8 @@ func main() {
 	seedHotel(3, "Bellucia", "France")
 	seedHotel(4, "Sandrosso", "Roorkee")
 	
-	// Seed a sample user
-	seedUser("anshuman", "yadav", "anshumaniitre9@gmail.com")
+	// Seed a sample user with admin privileges
+	seedUser("anshuman", "yadav", "anshumaniitre9@gmail.com", "S3cur3P@ssw0rd!2024", true)
 }
 
 // init is called before main() automatically by Go
@@ -73,7 +73,7 @@ func init() {
 	var err error
 	
 	// Connect to MongoDB
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
+	client, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,17 +91,20 @@ func init() {
 
 // seedUser creates a new user with the given parameters
 // This is a helper function to populate the database with sample user data
-func seedUser(fname, lname, email string) {
+func seedUser(fname, lname, email, password string, isAdmin bool) {
 	// Create a new user from parameters
 	user, err := types.NewUserFromParams(types.CreateUserParams{
 		Email: email,
 		FirstName: fname,
 		LastName: lname,
-		Password: "upersecrepassword",  // Note: In a real app, use strong unique passwords
+		Password: password,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
+	
+	// Set admin status
+	user.IsAdmin = isAdmin
 	
 	// Insert the user into the database
 	_, err = userStore.InsertUser(ctx, user)

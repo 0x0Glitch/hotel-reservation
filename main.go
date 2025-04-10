@@ -59,6 +59,7 @@ func main(){
 	authHandler := api.NewAuthHandler(userStore)
 	roomHandler := api.NewRoomHandler(store)
 	bookingHandler := api.NewBookingHandler(store)
+	adminHandler := api.NewAdminHandler(store)
 	
 	// Create a new Fiber app with our custom config
 	app := fiber.New(config)
@@ -95,8 +96,15 @@ func main(){
 	apiv1.Get("/room",roomHandler.HandleGetRooms)
 	apiv1.Post("/room/:id/book",roomHandler.HandleBookRoom)
 
-	admin.Get("/booking", bookingHandler.HandleGetBookings)
 	apiv1.Get("/booking/:id",bookingHandler.HandleGetBooking)
+	apiv1.Delete("/booking/:id",bookingHandler.HandleCancelBooking)
+	
+	// Admin routes
+	admin.Get("/users", adminHandler.HandleGetUsers)
+	admin.Get("/bookings", adminHandler.HandleGetBookings)
+	admin.Get("/hotels", adminHandler.HandleGetHotels)
+	admin.Put("/user/:id/make-admin", adminHandler.HandleMakeAdmin)
+	
 	// Start the server
 	app.Listen(*listenAddr)
 }
